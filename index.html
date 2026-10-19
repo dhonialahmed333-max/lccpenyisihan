@@ -70,11 +70,10 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
 
-        <!-- 1. Form Registrasi Peserta -->
+        <!-- 1. Form Registrasi Peserta (Langkah 1: Login & Cek Spreadsheet) -->
         <div id="identitasSection" class="max-w-md mx-auto bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-emerald-100 p-6 md:p-8">
 
             <div class="text-center mb-6">
-                <!-- Gambar 3D Lingkaran Peserta LCC dengan Wadah Presisi Melingkar -->
                 <div class="w-28 h-28 mx-auto mb-3 relative flex items-center justify-center rounded-full overflow-hidden border-2 border-emerald-500/30 bg-white shadow-lg p-0.5">
                     <img src="logo_lcc_3d.png" alt="Maskot 3D LCC" class="w-full h-full object-cover rounded-full">
                 </div>
@@ -103,7 +102,7 @@
                 <span>Memeriksa status pengerjaan peserta...</span>
             </div>
 
-            <form id="startForm" onsubmit="event.preventDefault(); startQuiz();" class="space-y-4">
+            <form id="startForm" onsubmit="event.preventDefault(); validateLogin();" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pilih Kelompok / Kelas</label>
                     <select id="kelasSiswa" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none transition bg-white">
@@ -165,14 +164,96 @@
                 </div>
 
                 <input type="hidden" id="absenSiswa" value="1">
-                <!-- URL Apps Script Diperbarui -->
                 <input type="hidden" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbyWHYFuyHtmipPKqCFPtiRlGtgLMf1eiuQlfSSPa5A_xU-eZObN8688hOGWcEqGNeRP/exec">
 
-                <button type="submit" id="btnStartQuiz" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-emerald-600/30 transition duration-200 flex items-center justify-center space-x-2">
-                    <span>Mulai Pengerjaan LCC (45 Menit)</span>
+                <button type="submit" id="btnNextLogin" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 flex items-center justify-center space-x-2">
+                    <span>Lanjutkan ke Tata Tertib</span>
                     <i class="fas fa-arrow-right text-sm"></i>
                 </button>
             </form>
+        </div>
+
+        <!-- 1.B Halaman Langkah Kedua: Tata Tertib & Persetujuan -->
+        <div id="rulesSection" class="hidden max-w-lg mx-auto bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-emerald-100 p-6 md:p-8">
+            <div class="text-center mb-5">
+                <div class="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner border border-emerald-200">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">Tata Tertib & Petunjuk Pengerjaan</h2>
+                <p class="text-xs text-slate-500 mt-1">LOMBA CERDAS CERMAT (LCC) TAHUN 2026 - SMA NEGERI 1 TANJUNG, BREBES</p>
+            </div>
+
+            <!-- Box Isi Tata Tertib -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 max-h-56 overflow-y-auto custom-scrollbar space-y-3 leading-relaxed mb-4">
+                <div>
+                    <strong class="text-slate-800 block mb-1">A. KETENTUAN UMUM PESERTA</strong>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Status Peserta:</strong> Peserta merupakan perwakilan kelompok/kelas yang telah terdaftar secara resmi di panitia.</li>
+                        <li><strong>Perangkat Ujian:</strong> Setiap kelompok menggunakan perangkat gawai (smartphone, tablet, atau laptop) yang telah dipinjamkan/disediakan atau disetujui oleh panitia.</li>
+                        <li><strong>Koneksi Internet:</strong> Peserta wajib memastikan perangkat memiliki koneksi internet yang stabil selama perlombaan berlangsung.</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong class="text-slate-800 block mb-1">B. PETUNJUK PENGERJAAN SOAL</strong>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Durasi Ujian:</strong> Waktu pengerjaan soal adalah 45 menit dan akan dihitung mundur secara otomatis sejak tombol mulai ditekan.</li>
+                        <li><strong>Jumlah & Jenis Soal:</strong> Terdapat 20 soal pilihan ganda yang diacak secara otomatis oleh sistem untuk setiap kelompok.</li>
+                        <li><strong>Sistem Navigasi:</strong> 
+                            <div class="pl-2 mt-0.5 space-y-0.5">
+                                - Peserta dapat berpindah antarsoal menggunakan panel navigasi soal yang tersedia di sisi layar.<br>
+                                - Indikator warna pada tombol navigasi menunjukkan status soal:
+                                <div class="pl-3 space-y-0.5 mt-0.5">
+                                    * <strong>Hijau Tua:</strong> Soal yang sedang dikerjakan.<br>
+                                    * <strong>Hijau Muda / Teals:</strong> Soal yang sudah dijawab.<br>
+                                    * <strong>Abu-abu / Putih:</strong> Soal yang belum dijawab.
+                                </div>
+                            </div>
+                        </li>
+                        <li><strong>Pengiriman Jawaban:</strong> 
+                            <div class="pl-2 mt-0.5 space-y-0.5">
+                                - Pastikan semua soal telah dijawab sebelum waktu habis.<br>
+                                - Klik tombol "Selesai & Kirim Jawaban" di bagian bawah panel navigasi untuk mengakhiri ujian dan mengirimkan nilai secara otomatis ke server panitia.<br>
+                                - Sistem akan mengunci otomatis dan mengirimkan jawaban jika batas waktu 45 menit telah habis.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <strong class="text-slate-800 block mb-1">C. TATA TERTIB PESERTA (LARANGAN)</strong>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Dilarang Curang:</strong> Peserta dilarang keras bekerja sama, berdiskusi dengan kelompok lain, atau melihat catatan/buku luar selama perlombaan berlangsung.</li>
+                        <li><strong>Dilarang Keluar Aplikasi:</strong> Peserta dilarang keluar dari halaman ujian, membuka tab browser lain, atau menggunakan aplikasi pendukung eksternal di luar sistem ujian.</li>
+                        <li><strong>Pelanggaran:</strong> Kelompok yang terbukti melakukan kecurangan atau melanggar tata tertib akan didiskualifikasi oleh Juri.</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong class="text-slate-800 block mb-1">D. KETENTUAN KHUSUS / BANTUAN JURI</strong>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Kendala Teknis:</strong> Jika terjadi gangguan jaringan, error pada sistem, atau perangkat peserta mati mendadak, segera laporkan kepada Juri/Pengawas di ruangan.</li>
+                    </ul>
+                </div>
+                <div class="text-center font-bold text-emerald-800 pt-2 border-t border-slate-200">
+                    Selamat berlomba kepada seluruh perwakilan kelompok. Junjung tinggi sportivitas dan kejujuran!
+                </div>
+            </div>
+
+            <!-- Kotak Dialog Checkbox Persetujuan Peserta -->
+            <div class="mb-5 flex items-start space-x-2.5 bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200/80 shadow-sm">
+                <input type="checkbox" id="agreeCheckbox" onchange="toggleStartButton()" class="mt-0.5 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer">
+                <label for="agreeCheckbox" class="text-xs text-slate-700 font-semibold cursor-pointer select-none">
+                    Saya menyatakan telah membaca, memahami, dan menyetujui seluruh tata tertib serta petunjuk pengerjaan LCC SMA Negeri 1 Tanjung di atas.
+                </label>
+            </div>
+
+            <div class="flex space-x-3">
+                <button onclick="backToLogin()" class="w-1/3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3.5 rounded-xl text-xs transition">
+                    <i class="fas fa-arrow-left mr-1"></i> Kembali
+                </button>
+                <button type="button" id="btnStartQuiz" disabled onclick="startQuiz()" class="w-2/3 bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 flex items-center justify-center space-x-2 opacity-50 cursor-not-allowed text-xs">
+                    <span>Mulai Pengerjaan (45 Menit)</span>
+                    <i class="fas fa-arrow-right text-sm"></i>
+                </button>
+            </div>
         </div>
 
         <!-- 2. Halaman Pengerjaan Soal -->
@@ -436,6 +517,29 @@
             }
         });
 
+        // Toggle Tombol Mulai Berdasarkan Checklist Persetujuan Tata Tertib
+        function toggleStartButton() {
+            const checkbox = document.getElementById('agreeCheckbox');
+            const btnStart = document.getElementById('btnStartQuiz');
+            
+            if (checkbox.checked) {
+                btnStart.disabled = false;
+                btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnStart.classList.add('hover:shadow-emerald-600/30');
+            } else {
+                btnStart.disabled = true;
+                btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                btnStart.classList.remove('hover:shadow-emerald-600/30');
+            }
+        }
+
+        function backToLogin() {
+            document.getElementById('rulesSection').classList.add('hidden');
+            document.getElementById('identitasSection').classList.remove('hidden');
+            document.getElementById('agreeCheckbox').checked = false;
+            toggleStartButton();
+        }
+
         // Kredensial Lomba & Akses Juri
         const SECRET_TEACHER_TOKEN = "JURI2026";
         const REQUIRED_STUDENT_TOKEN = "LCC2026";
@@ -592,7 +696,7 @@
             const scriptUrl = document.getElementById('scriptUrl').value.trim();
             const alertBox = document.getElementById('blockedAlert');
             const alertMsg = document.getElementById('blockedMessage');
-            const btnStart = document.getElementById('btnStartQuiz');
+            const btnNext = document.getElementById('btnNextLogin');
             const loader = document.getElementById('checkingLoader');
 
             if (!kelas) return;
@@ -600,15 +704,15 @@
             if (localStorage.getItem(`completed_quiz_${kelas}_${absen}`)) {
                 alertMsg.innerText = `Peserta ${kelas} tercatat telah menyelesaikan babak ini di perangkat ini.`;
                 alertBox.classList.remove('hidden');
-                btnStart.disabled = true;
-                btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                btnNext.disabled = true;
+                btnNext.classList.add('opacity-50', 'cursor-not-allowed');
                 return;
             }
 
             if (scriptUrl) {
                 loader.classList.remove('hidden');
-                btnStart.disabled = true;
-                btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                btnNext.disabled = true;
+                btnNext.classList.add('opacity-50', 'cursor-not-allowed');
 
                 try {
                     const checkUrl = `${scriptUrl}?kelas=${encodeURIComponent(kelas)}&absen=${encodeURIComponent(absen)}`;
@@ -618,17 +722,17 @@
                     if (resData.alreadySubmitted) {
                         alertMsg.innerText = `Peserta ${kelas} tercatat SUDAH MENGERJAKAN di server. Akses pengerjaan dikunci.`;
                         alertBox.classList.remove('hidden');
-                        btnStart.disabled = true;
-                        btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                        btnNext.disabled = true;
+                        btnNext.classList.add('opacity-50', 'cursor-not-allowed');
                     } else {
                         alertBox.classList.add('hidden');
-                        btnStart.disabled = false;
-                        btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                        btnNext.disabled = false;
+                        btnNext.classList.remove('opacity-50', 'cursor-not-allowed');
                     }
                 } catch (err) {
                     alertBox.classList.add('hidden');
-                    btnStart.disabled = false;
-                    btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btnNext.disabled = false;
+                    btnNext.classList.remove('opacity-50', 'cursor-not-allowed');
                 } finally {
                     loader.classList.add('hidden');
                 }
@@ -660,14 +764,39 @@
                 closeTokenModal();
                 document.getElementById('blockedAlert').classList.add('hidden');
                 
-                const btnStart = document.getElementById('btnStartQuiz');
-                btnStart.disabled = false;
-                btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                const btnNext = document.getElementById('btnNextLogin');
+                btnNext.disabled = false;
+                btnNext.classList.remove('opacity-50', 'cursor-not-allowed');
                 
                 alert(`Akses pengerjaan ulang berhasil dibuka oleh Juri untuk ${kelas}!`);
             } else {
                 document.getElementById('tokenErrorMsg').classList.remove('hidden');
             }
+        }
+
+        // Langkah 1: Validasi Login, Cek Token, lalu Pindah ke Langkah Kedua (Tata Tertib)
+        function validateLogin() {
+            const kelas = document.getElementById('kelasSiswa').value;
+            const tokenInput = document.getElementById('tokenPengerjaan').value.trim().toUpperCase();
+            const absen = document.getElementById('absenSiswa').value || "1";
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+
+            if (!kelas || !tokenInput) {
+                alert("Harap pilih kelompok/kelas dan masukkan token pengerjaan!");
+                return;
+            }
+
+            if (tokenInput !== REQUIRED_STUDENT_TOKEN) {
+                alert("Token pengerjaan salah! Silakan tanyakan token kepada panitia/Juri.");
+                return;
+            }
+
+            const nama = kelas;
+            studentData = { nama, kelas, absen, scriptUrl };
+
+            // Pindah dari form registrasi ke halaman tata tertib (langkah 2)
+            document.getElementById('identitasSection').classList.add('hidden');
+            document.getElementById('rulesSection').classList.remove('hidden');
         }
 
         function saveCurrentSession() {
@@ -696,6 +825,7 @@
                     }
 
                     document.getElementById('identitasSection').classList.add('hidden');
+                    document.getElementById('rulesSection').classList.add('hidden');
                     document.getElementById('quizSection').classList.remove('hidden');
                     document.getElementById('headerTimer').classList.remove('hidden');
                     document.getElementById('headerTimer').classList.add('flex');
@@ -714,33 +844,22 @@
             }
         }
 
+        // Langkah Terakhir: Memulai Quiz Setelah Menyetujui Tata Tertib
         function startQuiz() {
-            const kelas = document.getElementById('kelasSiswa').value;
-            const tokenInput = document.getElementById('tokenPengerjaan').value.trim().toUpperCase();
-            const absen = document.getElementById('absenSiswa').value || "1";
-            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+            const checkbox = document.getElementById('agreeCheckbox');
 
-            if (!kelas || !tokenInput) {
-                alert("Harap pilih kelompok/kelas dan masukkan token pengerjaan!");
+            if (!checkbox.checked) {
+                alert("Anda harus mencentang kotak persetujuan tata tertib terlebih dahulu!");
                 return;
             }
 
-            if (tokenInput !== REQUIRED_STUDENT_TOKEN) {
-                alert("Token pengerjaan salah! Silakan tanyakan token kepada panitia/Juri.");
-                return;
-            }
-
-            const nama = kelas;
-
-            studentData = { nama, kelas, absen, scriptUrl };
             startTime = Date.now();
-
             questionsData = shuffleArray(rawQuestionsData);
             userAnswers = new Array(questionsData.length).fill(null);
 
             saveCurrentSession();
 
-            document.getElementById('identitasSection').classList.add('hidden');
+            document.getElementById('rulesSection').classList.add('hidden');
             document.getElementById('quizSection').classList.remove('hidden');
             document.getElementById('headerTimer').classList.remove('hidden');
             document.getElementById('headerTimer').classList.add('flex');
@@ -1031,6 +1150,7 @@
 
         function showGuruDashboard() {
             document.getElementById('identitasSection').classList.add('hidden');
+            document.getElementById('rulesSection').classList.add('hidden');
             document.getElementById('quizSection').classList.add('hidden');
             document.getElementById('resultSection').classList.add('hidden');
             document.getElementById('guruDashboardSection').classList.remove('hidden');
@@ -1230,7 +1350,7 @@
             const targetSiswa = guruAllData[index];
             if (!targetSiswa) return;
 
-            const kelas = targetSiswa.kelas || targetSiswa.kelasSiswa || targetSiswa.nama;
+            const kelas = targetSiswa.kelas || targetSsiswa.kelasSiswa || targetSsiswa.nama;
 
             if (confirm(`Apakah Anda yakin ingin menghapus data untuk ${kelas}?`)) {
                 guruAllData.splice(index, 1);
