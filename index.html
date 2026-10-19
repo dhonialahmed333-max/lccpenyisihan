@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lomba Cerdas Cermat 2026 - SMA Negeri 1 Tanjung, Brebes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input, select, textarea {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(6, 78, 59, 0.85) 100%), 
+                        url('background.jpg') center/cover no-repeat fixed;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #0d9488; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #0f766e; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-emerald-900/90 backdrop-blur-md text-white shadow-lg sticky top-0 z-50 border-b border-emerald-700/50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-amber-400/20 border border-amber-400/40 rounded-xl flex items-center justify-center text-amber-300">
+                    <i class="fas fa-trophy text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base md:text-lg leading-tight tracking-wide text-emerald-100">Lomba Cerdas Cermat 2026</h1>
+                    <p class="text-xs text-emerald-300 font-medium">SMA Negeri 1 Tanjung, Brebes (45 Menit)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <div id="headerTimer" class="hidden items-center bg-emerald-950/80 px-3.5 py-1.5 rounded-xl border border-emerald-600/50 shadow-inner">
+                    <i class="far fa-clock text-amber-400 mr-2 animate-pulse"></i>
+                    <span id="timerDisplay" class="font-mono font-bold text-sm text-amber-300">45:00</span>
+                </div>
+                
+                <!-- TOMBOL AKSES JURI -->
+                <button onclick="openLoginModal()" id="btnGuruNav" class="bg-amber-500 hover:bg-amber-600 border border-amber-400 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-md hover:shadow-amber-500/20">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Akses Juri</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- 1. Form Registrasi Peserta -->
+        <div id="identitasSection" class="max-w-md mx-auto bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-emerald-100 p-6 md:p-8">
+
+            <div class="text-center mb-6">
+                <!-- Icon Kelompok di Atas Judul Registrasi -->
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl shadow-inner border border-emerald-200">
+                    <i class="fas fa-people-group"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">Registrasi Peserta LCC</h2>
+                <p class="text-xs text-slate-500 mt-1">Pilih kelompok/kelas Anda di bawah ini dan masukkan token pengerjaan.</p>
+            </div>
+
+            <div id="blockedAlert" class="hidden mb-6 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-sm">
+                <div class="flex items-start">
+                    <i class="fas fa-exclamation-triangle text-lg mr-3 mt-0.5"></i>
+                    <div>
+                        <strong class="font-semibold block mb-1">Akses Ditolak / Sudah Mengerjakan</strong>
+                        <span id="blockedMessage">Kelompok ini tercatat telah menyelesaikan babak pengerjaan.</span>
+                        <div class="mt-3">
+                            <button onclick="openTokenModal()" class="text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg transition shadow-sm inline-flex items-center space-x-1">
+                                <i class="fas fa-key text-[10px]"></i>
+                                <span>Buka Akses Ulang (Khusus Juri)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="checkingLoader" class="hidden mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs flex items-center justify-center space-x-2">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Memeriksa status pengerjaan peserta...</span>
+            </div>
+
+            <form id="startForm" onsubmit="event.preventDefault(); startQuiz();" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pilih Kelompok / Kelas</label>
+                    <select id="kelasSiswa" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none transition bg-white">
+                        <option value="" disabled selected>-- Pilih Kelompok / Kelas --</option>
+                        <!-- KELAS X -->
+                        <optgroup label="Kelas X">
+                            <option value="Kelompok X-1">Kelompok X-1</option>
+                            <option value="Kelompok X-2">Kelompok X-2</option>
+                            <option value="Kelompok X-3">Kelompok X-3</option>
+                            <option value="Kelompok X-4">Kelompok X-4</option>
+                            <option value="Kelompok X-5">Kelompok X-5</option>
+                            <option value="Kelompok X-6">Kelompok X-6</option>
+                            <option value="Kelompok X-7">Kelompok X-7</option>
+                            <option value="Kelompok X-8">Kelompok X-8</option>
+                            <option value="Kelompok X-9">Kelompok X-9</option>
+                            <option value="Kelompok X-10">Kelompok X-10</option>
+                            <option value="Kelompok X-11">Kelompok X-11</option>
+                            <option value="Kelompok X-12">Kelompok X-12</option>
+                        </optgroup>
+                        <!-- KELAS XI -->
+                        <optgroup label="Kelas XI">
+                            <option value="Kelompok XI-A1">Kelompok XI-A1</option>
+                            <option value="Kelompok XI-A2">Kelompok XI-A2</option>
+                            <option value="Kelompok XI-A3">Kelompok XI-A3</option>
+                            <option value="Kelompok XI-A4">Kelompok XI-A4</option>
+                            <option value="Kelompok XI-B1">Kelompok XI-B1</option>
+                            <option value="Kelompok XI-B2">Kelompok XI-B2</option>
+                            <option value="Kelompok XI-B3">Kelompok XI-B3</option>
+                            <option value="Kelompok XI-B4">Kelompok XI-B4</option>
+                            <option value="Kelompok XI-C1">Kelompok XI-C1</option>
+                            <option value="Kelompok XI-C2">Kelompok XI-C2</option>
+                            <option value="Kelompok XI-C3">Kelompok XI-C3</option>
+                            <option value="Kelompok XI-C4">Kelompok XI-C4</option>
+                        </optgroup>
+                        <!-- KELAS XII -->
+                        <optgroup label="Kelas XII">
+                            <option value="Kelompok XII-A1">Kelompok XII-A1</option>
+                            <option value="Kelompok XII-A2">Kelompok XII-A2</option>
+                            <option value="Kelompok XII-A3">Kelompok XII-A3</option>
+                            <option value="Kelompok XII-A4">Kelompok XII-A4</option>
+                            <option value="Kelompok XII-B1">Kelompok XII-B1</option>
+                            <option value="Kelompok XII-B2">Kelompok XII-B2</option>
+                            <option value="Kelompok XII-B3">Kelompok XII-B3</option>
+                            <option value="Kelompok XII-B4">Kelompok XII-B4</option>
+                            <option value="Kelompok XII-C1">Kelompok XII-C1</option>
+                            <option value="Kelompok XII-C2">Kelompok XII-C2</option>
+                            <option value="Kelompok XII-C3">Kelompok XII-C3</option>
+                            <option value="Kelompok XII-D">Kelompok XII-D</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Token Lomba</label>
+                    <div class="relative">
+                        <input type="password" id="tokenPengerjaan" required placeholder="Masukkan token pengerjaan" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none transition font-mono tracking-wider bg-slate-50/50">
+                        <i class="fas fa-key absolute right-3 top-3 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <input type="hidden" id="absenSiswa" value="1">
+                <!-- URL Apps Script Diperbarui -->
+                <input type="hidden" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbyWHYFuyHtmipPKqCFPtiRlGtgLMf1eiuQlfSSPa5A_xU-eZObN8688hOGWcEqGNeRP/exec">
+
+                <button type="submit" id="btnStartQuiz" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-emerald-600/30 transition duration-200 flex items-center justify-center space-x-2">
+                    <span>Mulai Pengerjaan LCC (45 Menit)</span>
+                    <i class="fas fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- 2. Halaman Pengerjaan Soal -->
+        <div id="quizSection" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div class="lg:col-span-3 space-y-6">
+                <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-100 p-6 md:p-8">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+                        <span class="text-xs font-extrabold text-emerald-700 uppercase tracking-wider bg-emerald-100/80 px-3 py-1.5 rounded-xl">Soal No. <span id="currentQuestionNum">1</span> dari <span id="totalQuestionsCount">20</span></span>
+                        <div class="text-xs text-slate-500 font-medium">
+                            Terjawab: <span id="answeredCount" class="font-bold text-slate-800">0</span>/<span id="totalQuestionsCount2">20</span>
+                        </div>
+                    </div>
+
+                    <div id="questionText" class="text-base md:text-lg font-semibold text-slate-900 mb-6 leading-relaxed"></div>
+                    <div id="optionsContainer" class="space-y-3"></div>
+
+                    <div class="flex justify-between items-center mt-8 pt-5 border-t border-slate-100">
+                        <button id="prevBtn" onclick="navigateQuestion(-1)" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 text-sm font-semibold flex items-center space-x-2 transition disabled:opacity-40">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                            <span>Sebelumnya</span>
+                        </button>
+                        
+                        <button id="nextBtn" onclick="navigateQuestion(1)" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 text-sm font-semibold flex items-center space-x-2 transition shadow-md">
+                            <span>Berikutnya</span>
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-100 p-5 sticky top-20">
+                    <h3 class="font-bold text-sm text-slate-800 mb-3 border-b pb-2 flex items-center space-x-2">
+                        <i class="fas fa-th-large text-emerald-600"></i>
+                        <span>Navigasi Soal</span>
+                    </h3>
+                    <div id="questionGrid" class="grid grid-cols-5 gap-2 max-h-[320px] overflow-y-auto custom-scrollbar p-1"></div>
+                    
+                    <div class="mt-6 pt-4 border-t border-slate-100 space-y-3">
+                        <div class="flex items-center space-x-2 text-xs text-slate-600 font-medium">
+                            <span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span>
+                            <span>Sedang Dikerjakan</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs text-slate-600 font-medium">
+                            <span class="w-3 h-3 rounded-full bg-teal-500 inline-block"></span>
+                            <span>Sudah Dijawab</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs text-slate-600 font-medium">
+                            <span class="w-3 h-3 rounded-full bg-slate-100 border border-slate-300 inline-block"></span>
+                            <span>Belum Dijawab</span>
+                        </div>
+
+                        <button onclick="confirmSubmission()" class="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center space-x-2">
+                            <i class="fas fa-paper-plane text-xs"></i>
+                            <span>Selesai & Kirim Jawaban</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Halaman Akhir Peserta (Tanpa Skor) -->
+        <div id="resultSection" class="hidden max-w-xl mx-auto space-y-6">
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-emerald-100 p-8 md:p-10 text-center">
+                <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl shadow-inner">
+                    <i class="fas fa-award"></i>
+                </div>
+                
+                <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Jawaban Berhasil Terkirim!</h2>
+                
+                <div class="p-5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 text-sm font-semibold my-6 leading-relaxed shadow-sm">
+                    Terimakasih, Anda telah berpartisipasi dalam Lomba Cerdas Cermat 2026 SMA Negeri 1 Tanjung, Brebes
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                    <span class="block text-[10px] text-slate-500 uppercase font-bold tracking-wider">Kelompok / Kelas</span>
+                    <span id="resKelasAbsen" class="font-bold text-slate-800 text-base block mt-1">-</span>
+                </div>
+
+                <div id="submissionStatus" class="mt-6 p-3.5 bg-amber-50 rounded-xl text-xs font-semibold text-amber-800 flex items-center justify-center space-x-2 border border-amber-200">
+                    <i class="fas fa-spinner fa-spin text-sm"></i>
+                    <span>Memproses pengiriman jawaban ke server...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. DASHBOARD JURI -->
+        <div id="guruDashboardSection" class="hidden space-y-6">
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-emerald-100 p-6 md:p-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-4 mb-6 gap-4">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900 flex items-center space-x-2">
+                            <i class="fas fa-gavel text-amber-500"></i>
+                            <span>Panel Rekapitulasi Nilai LCC 2026 (Juri)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Data hasil nilai pengerjaan seluruh kelompok peserta lomba.</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <button onclick="fetchGuruData()" class="px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 border border-emerald-200">
+                            <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                            <span>Muat Ulang Data</span>
+                        </button>
+                        <button onclick="logoutGuru()" class="px-3.5 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 border border-rose-200">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Keluar Panel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter & Search -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Cari Kelompok</label>
+                        <div class="relative">
+                            <input type="text" id="searchGuru" oninput="filterAndRenderGuruTable()" placeholder="Ketik nama kelompok..." class="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Filter Kelompok/Kelas</label>
+                        <select id="filterKelasGuru" onchange="filterAndRenderGuruTable()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                            <option value="ALL">Semua Kelompok</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 w-full flex justify-between items-center">
+                            <span class="text-xs text-slate-500 font-medium">Total Peserta Terdata:</span>
+                            <span id="totalSiswaBadge" class="text-sm font-bold text-emerald-700">0 Kelompok</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Data Nilai -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 custom-scrollbar">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-emerald-900 text-white font-bold border-b border-emerald-950">
+                                <th class="p-3.5">Kelompok / Kelas</th>
+                                <th class="p-3.5 text-center">Skor (Benar/Total)</th>
+                                <th class="p-3.5 text-center">Nilai Akhir</th>
+                                <th class="p-3.5 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="guruTableBody" class="divide-y divide-slate-100 text-slate-700 bg-white"></tbody>
+                    </table>
+                </div>
+
+                <div id="guruTableLoader" class="py-12 text-center text-slate-400 text-xs">
+                    <i class="fas fa-spinner fa-spin text-2xl text-emerald-600 mb-2"></i>
+                    <p>Mengambil data nilai dari Google Sheets...</p>
+                </div>
+
+                <div id="guruTableEmpty" class="hidden py-12 text-center text-slate-400 text-xs">
+                    <i class="fas fa-folder-open text-3xl text-slate-300 mb-2"></i>
+                    <p>Belum ada data nilai peserta LCC yang ditemukan.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Login Juri -->
+    <div id="loginGuruModal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                    <i class="fas fa-user-shield text-amber-500"></i>
+                    <span>Login Akses Juri</span>
+                </h3>
+                <button onclick="closeLoginModal()" class="text-slate-400 hover:text-slate-600 text-sm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="event.preventDefault(); processGuruLogin();" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username</label>
+                    <input type="text" id="guruUsername" required placeholder="Masukkan username" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 text-xs outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+                    <input type="password" id="guruPassword" required placeholder="Masukkan password" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 text-xs outline-none">
+                </div>
+                <p id="loginErrorMsg" class="hidden text-xs text-rose-600 font-semibold mt-1">Username atau Password Juri salah!</p>
+                
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeLoginModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl transition shadow-md">Masuk Panel Juri</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Nilai Siswa -->
+    <div id="editNilaiModal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                    <i class="fas fa-edit text-emerald-600"></i>
+                    <span>Edit Nilai Kelompok</span>
+                </h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 text-sm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="event.preventDefault(); saveEditedScore();" class="space-y-3">
+                <input type="hidden" id="editIndex">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Kelompok / Kelas</label>
+                    <input type="text" id="editKelas" disabled class="w-full px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Skor Benar (dari 20 Soal)</label>
+                    <input type="number" id="editSkor" min="0" max="20" required oninput="calculateEditPercentage()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 text-xs outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nilai Akhir (0 - 100)</label>
+                    <input type="number" id="editPersentase" readonly class="w-full px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 outline-none">
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="submit" id="btnSaveEdit" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition shadow-md">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Token Juri untuk Akses Ulang Peserta -->
+    <div id="tokenModal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                    <i class="fas fa-user-shield text-amber-500"></i>
+                    <span>Verifikasi Token Juri</span>
+                </h3>
+                <button onclick="closeTokenModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="text-xs text-slate-500">Masukkan token juri untuk memberikan izin pengerjaan ulang pada kelompok ini.</p>
+            <div>
+                <input type="password" id="inputTokenGuru" placeholder="Masukkan Token Juri" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none">
+                <p id="tokenErrorMsg" class="hidden text-xs text-rose-600 font-semibold mt-1">Token salah! Akses ditolak.</p>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeTokenModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                <button onclick="verifyTeacherToken()" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition shadow-md">Buka Akses Ulang</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Anti Curang / Disable Right Click & Inspect
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('selectstart', e => { if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) e.preventDefault(); });
+        document.addEventListener('copy', e => e.preventDefault());
+        document.addEventListener('cut', e => e.preventDefault());
+        document.addEventListener('dragstart', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && [73, 67, 74].includes(e.keyCode)) || (e.ctrlKey && [85, 83, 65, 67].includes(e.keyCode))) {
+                e.preventDefault();
+            }
+        });
+
+        // Kredensial Lomba & Akses Juri
+        const SECRET_TEACHER_TOKEN = "JURI2026";
+        const REQUIRED_STUDENT_TOKEN = "LCC2026";
+        const TOTAL_DURATION_SECONDS = 45 * 60; // 45 Menit
+
+        const GURU_USER = "admin";
+        const GURU_PASS = "00000000";
+
+        let guruAllData = [];
+
+        // Soal LCC (20 Soal)
+        const rawQuestionsData = [
+            {
+                "id": 1,
+                "text": "Dalam suatu kompetisi, aturan penilaian adalah: +4 untuk jawaban benar, -2 untuk jawaban salah, dan -1 untuk soal yang tidak dijawab. Dari 40 soal yang diberikan, Budi menjawab benar 28 soal dan tidak menjawab 5 soal. Skor total yang diperoleh Budi adalah...",
+                "options": ["A. 93", "B. 98", "C. 102", "D. 107", "E. 112"],
+                "answer": 0
+            },
+            {
+                "id": 2,
+                "text": "Diketahui barisan bilangan: 4, 7, 12, 19, 28, ... Suku ke-10 dari barisan tersebut adalah...",
+                "options": ["A. 83", "B. 91", "C. 103", "D. 111", "E. 124"],
+                "answer": 2
+            },
+            {
+                "id": 3,
+                "text": "Nilai dari (2^5 * 3^4 * 5^2) / (2^3 * 3^2 * 5) adalah...",
+                "options": ["A. 60", "B. 90", "C. 120", "D. 180", "E. 360"],
+                "answer": 3
+            },
+            {
+                "id": 4,
+                "text": "Hasil penjumlahan dari 5x - 3y + 7 dan 2x + 7y - 4 adalah...",
+                "options": ["A. 7x + 4y + 3", "B. 7x - 4y + 3", "C. 7x + 4y - 3", "D. 3x + 10y + 11", "E. 3x - 10y + 3"],
+                "answer": 0
+            },
+            {
+                "id": 5,
+                "text": "Dua sudut saling berpelurus (suplemen). Jika besar sudut pertama adalah tiga kali besar sudut kedua, maka besar sudut kedua adalah...",
+                "options": ["A. 30°", "B. 45°", "C. 60°", "D. 75°", "E. 135°"],
+                "answer": 1
+            },
+            {
+                "id": 6,
+                "text": "Sebuah lapangan berbentuk persegi panjang memiliki ukuran panjang (2x + 5) meter dan lebar (x - 2) meter. Jika keliling lapangan tersebut adalah 54 meter, maka luas lapangan tersebut adalah...",
+                "options": ["A. 126 m²", "B. 135 m²", "C. 154 m²", "D. 176 m²", "E. 180 m²"],
+                "answer": 2
+            },
+            {
+                "id": 7,
+                "text": "Rata-rata nilai ulangan matematika dari 18 siswa adalah 75. Jika nilai 2 siswa susulan digabungkan, rata-rata nilainya menjadi 76. Rata-rata nilai kedua siswa susulan tersebut adalah...",
+                "options": ["A. 80", "B. 82", "C. 85", "D. 88", "E. 90"],
+                "answer": 2
+            },
+            {
+                "id": 8,
+                "text": "Suatu pekerjaan dapat diselesaikan oleh 12 orang dalam waktu 20 hari. Setelah bekerja selama 5 hari, pekerjaan terhenti selama 3 hari karena cuaca buruk. Agar pekerjaan selesai tepat waktu, tambahan pekerja yang dibutuhkan adalah...",
+                "options": ["A. 3 orang", "B. 4 orang", "C. 5 orang", "D. 6 orang", "E. 8 orang"],
+                "answer": 0
+            },
+            {
+                "id": 9,
+                "text": "Bentuk sederhana dari (3√2 + 2√3)(3√2 - 2√3) adalah...",
+                "options": ["A. 6", "B. 12", "C. 18", "D. 24", "E. 30"],
+                "answer": 0
+            },
+            {
+                "id": 10,
+                "text": "Sebuah toko pakaian memberikan diskon ganda 20% + 10% untuk semua produk. Jika harga awal sebuah jaket adalah Rp 400.000, maka harga jaket setelah diskon ganda adalah...",
+                "options": ["A. Rp 280.000", "B. Rp 288.000", "C. Rp 296.000", "D. Rp 300.000", "E. Rp 312.000"],
+                "answer": 1
+            },
+            {
+                "id": 11,
+                "text": "Persamaan garis yang melalui titik (3, -2) dan tegak lurus dengan garis 2x - 4y + 5 = 0 adalah...",
+                "options": ["A. y = -2x + 4", "B. y = -2x - 4", "C. y = 2x - 8", "D. y = 1/2 x - 7/2", "E. y = -1/2 x - 1/2"],
+                "answer": 0
+            },
+            {
+                "id": 12,
+                "text": "Dalam sebuah kantong terdapat 5 kelereng merah, 4 kelereng biru, dan 3 kelereng kuning. Diambil dua kelereng satu per satu tanpa pengembalian. Peluang terambil kelereng pertama merah dan kelereng kedua biru adalah...",
+                "options": ["A. 5/33", "B. 2/15", "C. 5/36", "D. 20/144", "E. 1/6"],
+                "answer": 0
+            },
+            {
+                "id": 13,
+                "text": "Himpunan penyelesaian dari pertidaksamaan |2x - 5| ≤ 7 adalah...",
+                "options": ["A. -1 ≤ x ≤ 6", "B. -6 ≤ x ≤ 1", "C. x ≤ -1 atau x ≥ 6", "D. 1 ≤ x ≤ 6", "E. -1 ≤ x ≤ 1"],
+                "answer": 0
+            },
+            {
+                "id": 14,
+                "text": "Diketahui fungsi f(x) = 3x - 5 dan g(x) = x² + 2x. Nilai dari (g ∘ f)(2) adalah...",
+                "options": ["A. 3", "B. 5", "C. 8", "D. 11", "E. 15"],
+                "answer": 0
+            },
+            {
+                "id": 15,
+                "text": "Sebuah kubus ABCD.EFGH memiliki panjang rusuk 6 cm. Jarak titik A ke garis CF adalah...",
+                "options": ["A. 3√2 cm", "B. 3√6 cm", "C. 6√2 cm", "D. 4√3 cm", "E. 2√6 cm"],
+                "answer": 1
+            },
+            {
+                "id": 16,
+                "text": "Akar-akar persamaan kuadrat 2x² - 6x + 3 = 0 adalah α dan β. Nilai dari (1/α + 1/β) adalah...",
+                "options": ["A. 1", "B. 2", "C. 3", "D. 1/2", "E. 3/2"],
+                "answer": 1
+            },
+            {
+                "id": 17,
+                "text": "Jumlah suku pertama hingga suku ke-n dari suatu deret aritmatika dinyatakan dengan Sn = 3n² - 2n. Suku ke-8 dari deret tersebut adalah...",
+                "options": ["A. 38", "B. 41", "C. 43", "D. 45", "E. 48"],
+                "answer": 2
+            },
+            {
+                "id": 18,
+                "text": "Jika sin A = 4/5 (A sudut lancip) dan cos B = 5/13 (B sudut lancip), maka nilai sin (A + B) adalah...",
+                "options": ["A. 16/65", "B. 33/65", "C. 56/65", "D. 63/65", "E. 65/65"],
+                "answer": 2
+            },
+            {
+                "id": 19,
+                "text": "Modus dari data pada tabel berikut adalah... [Interval: 40-44 (f=4), 45-49 (f=8), 50-54 (f=12), 55-59 (f=10), 60-64 (f=6)]",
+                "options": ["A. 51,33", "B. 51,83", "C. 52,17", "D. 52,50", "E. 53,00"],
+                "answer": 1
+            },
+            {
+                "id": 20,
+                "text": "Suku banyak P(x) = x³ - a x² + b x - 6 habis dibagi (x - 2) dan jika dibagi (x + 1) bersisa -12. Nilai a + b adalah...",
+                "options": ["A. 1", "B. 2", "C. 3", "D. 4", "E. 5"],
+                "answer": 4
+            }
+        ];
+
+        let questionsData = [];
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let studentData = {};
+        let timerInterval = null;
+        let startTime = null;
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        async function checkIdentityAvailability() {
+            const kelas = document.getElementById('kelasSiswa').value;
+            const absen = document.getElementById('absenSiswa').value || "1";
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+            const alertBox = document.getElementById('blockedAlert');
+            const alertMsg = document.getElementById('blockedMessage');
+            const btnStart = document.getElementById('btnStartQuiz');
+            const loader = document.getElementById('checkingLoader');
+
+            if (!kelas) return;
+
+            if (localStorage.getItem(`completed_quiz_${kelas}_${absen}`)) {
+                alertMsg.innerText = `Peserta ${kelas} tercatat telah menyelesaikan babak ini di perangkat ini.`;
+                alertBox.classList.remove('hidden');
+                btnStart.disabled = true;
+                btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                return;
+            }
+
+            if (scriptUrl) {
+                loader.classList.remove('hidden');
+                btnStart.disabled = true;
+                btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+
+                try {
+                    const checkUrl = `${scriptUrl}?kelas=${encodeURIComponent(kelas)}&absen=${encodeURIComponent(absen)}`;
+                    const response = await fetch(checkUrl);
+                    const resData = await response.json();
+
+                    if (resData.alreadySubmitted) {
+                        alertMsg.innerText = `Peserta ${kelas} tercatat SUDAH MENGERJAKAN di server. Akses pengerjaan dikunci.`;
+                        alertBox.classList.remove('hidden');
+                        btnStart.disabled = true;
+                        btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        alertBox.classList.add('hidden');
+                        btnStart.disabled = false;
+                        btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                } catch (err) {
+                    alertBox.classList.add('hidden');
+                    btnStart.disabled = false;
+                    btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                } finally {
+                    loader.classList.add('hidden');
+                }
+            }
+        }
+
+        document.getElementById('kelasSiswa').addEventListener('change', checkIdentityAvailability);
+
+        function openTokenModal() {
+            document.getElementById('inputTokenGuru').value = '';
+            document.getElementById('tokenErrorMsg').classList.add('hidden');
+            document.getElementById('tokenModal').classList.remove('hidden');
+        }
+
+        function closeTokenModal() {
+            document.getElementById('tokenModal').classList.add('hidden');
+        }
+
+        function verifyTeacherToken() {
+            const tokenInput = document.getElementById('inputTokenGuru').value.trim();
+            const kelas = document.getElementById('kelasSiswa').value;
+            const absen = document.getElementById('absenSiswa').value || "1";
+
+            if (tokenInput === SECRET_TEACHER_TOKEN) {
+                localStorage.removeItem(`completed_quiz_${kelas}_${absen}`);
+                localStorage.removeItem('active_quiz_session');
+                localStorage.removeItem('pending_quiz_submission');
+                
+                closeTokenModal();
+                document.getElementById('blockedAlert').classList.add('hidden');
+                
+                const btnStart = document.getElementById('btnStartQuiz');
+                btnStart.disabled = false;
+                btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                alert(`Akses pengerjaan ulang berhasil dibuka oleh Juri untuk ${kelas}!`);
+            } else {
+                document.getElementById('tokenErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function saveCurrentSession() {
+            const sessionData = { studentData, currentQuestion, userAnswers, questionsData, startTime };
+            localStorage.setItem('active_quiz_session', JSON.stringify(sessionData));
+        }
+
+        function restoreSessionIfExist() {
+            const savedSession = localStorage.getItem('active_quiz_session');
+            if (savedSession) {
+                try {
+                    const data = JSON.parse(savedSession);
+                    studentData = data.studentData;
+                    questionsData = data.questionsData || rawQuestionsData;
+                    currentQuestion = data.currentQuestion || 0;
+                    userAnswers = data.userAnswers || new Array(questionsData.length).fill(null);
+                    startTime = data.startTime || Date.now();
+
+                    const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                    const remainingSeconds = TOTAL_DURATION_SECONDS - elapsedSeconds;
+
+                    if (remainingSeconds <= 0) {
+                        alert("Waktu pengerjaan LCC telah habis saat halaman dimuat ulang!");
+                        submitQuiz();
+                        return;
+                    }
+
+                    document.getElementById('identitasSection').classList.add('hidden');
+                    document.getElementById('quizSection').classList.remove('hidden');
+                    document.getElementById('headerTimer').classList.remove('hidden');
+                    document.getElementById('headerTimer').classList.add('flex');
+
+                    document.getElementById('totalQuestionsCount').innerText = questionsData.length;
+                    document.getElementById('totalQuestionsCount2').innerText = questionsData.length;
+
+                    renderQuestionGrid();
+                    loadQuestion(currentQuestion);
+                    startTimer();
+                } catch(e) {
+                    localStorage.removeItem('active_quiz_session');
+                }
+            }
+        }
+
+        function startQuiz() {
+            const kelas = document.getElementById('kelasSiswa').value;
+            const tokenInput = document.getElementById('tokenPengerjaan').value.trim().toUpperCase();
+            const absen = document.getElementById('absenSiswa').value || "1";
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+
+            if (!kelas || !tokenInput) {
+                alert("Harap pilih kelompok/kelas dan masukkan token pengerjaan!");
+                return;
+            }
+
+            if (tokenInput !== REQUIRED_STUDENT_TOKEN) {
+                alert("Token pengerjaan salah! Silakan tanyakan token kepada panitia/Juri.");
+                return;
+            }
+
+            const nama = kelas;
+
+            studentData = { nama, kelas, absen, scriptUrl };
+            startTime = Date.now();
+
+            questionsData = shuffleArray(rawQuestionsData);
+            userAnswers = new Array(questionsData.length).fill(null);
+
+            saveCurrentSession();
+
+            document.getElementById('identitasSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+            document.getElementById('headerTimer').classList.remove('hidden');
+            document.getElementById('headerTimer').classList.add('flex');
+
+            document.getElementById('totalQuestionsCount').innerText = questionsData.length;
+            document.getElementById('totalQuestionsCount2').innerText = questionsData.length;
+
+            renderQuestionGrid();
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            function updateTimerDisplay() {
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const remainingSeconds = TOTAL_DURATION_SECONDS - elapsedSeconds;
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timerDisplay').innerText = "00:00";
+                    alert("Waktu pengerjaan LCC 45 menit telah habis! Jawaban Anda dikirimkan otomatis.");
+                    submitQuiz();
+                    return;
+                }
+
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                document.getElementById('timerDisplay').innerText = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            updateTimerDisplay();
+            timerInterval = setInterval(updateTimerDisplay, 1000);
+        }
+
+        function renderQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+
+            questionsData.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `grid-btn-${idx}`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => loadQuestion(idx);
+                btn.className = `h-9 w-full rounded-xl text-xs font-bold flex items-center justify-center transition border ${getGridBtnStyle(idx)}`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function getGridBtnStyle(idx) {
+            if (idx === currentQuestion) {
+                return 'bg-emerald-600 text-white border-emerald-600 shadow-md';
+            } else if (userAnswers[idx] !== null) {
+                return 'bg-teal-500 text-white border-teal-500';
+            } else {
+                return 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100';
+            }
+        }
+
+        function updateGridBtnStyles() {
+            questionsData.forEach((_, idx) => {
+                const btn = document.getElementById(`grid-btn-${idx}`);
+                if (btn) btn.className = `h-9 w-full rounded-xl text-xs font-bold flex items-center justify-center transition border ${getGridBtnStyle(idx)}`;
+            });
+        }
+
+        function loadQuestion(idx) {
+            currentQuestion = idx;
+            saveCurrentSession();
+            const q = questionsData[idx];
+
+            document.getElementById('currentQuestionNum').innerText = idx + 1;
+            document.getElementById('questionText').innerText = q.text;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, optIdx) => {
+                const isSelected = userAnswers[idx] === optIdx;
+                const optEl = document.createElement('div');
+                optEl.onclick = () => selectOption(optIdx);
+                optEl.className = `p-4 rounded-xl border text-sm cursor-pointer transition flex items-center justify-between ${
+                    isSelected 
+                    ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-semibold shadow-sm' 
+                    : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800'
+                }`;
+
+                optEl.innerHTML = `
+                    <span>${opt}</span>
+                    <div class="w-5 h-5 rounded-full border flex items-center justify-center ${
+                        isSelected ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300'
+                    }">
+                        ${isSelected ? '<i class="fas fa-check text-[10px]"></i>' : ''}
+                    </div>
+                `;
+                optionsContainer.appendChild(optEl);
+            });
+
+            document.getElementById('prevBtn').disabled = idx === 0;
+            document.getElementById('nextBtn').innerText = idx === questionsData.length - 1 ? 'Selesai' : 'Berikutnya';
+
+            updateGridBtnStyles();
+            updateAnsweredCount();
+        }
+
+        function selectOption(optIdx) {
+            userAnswers[currentQuestion] = optIdx;
+            saveCurrentSession();
+            loadQuestion(currentQuestion);
+        }
+
+        function navigateQuestion(direction) {
+            const newIdx = currentQuestion + direction;
+            if (newIdx >= 0 && newIdx < questionsData.length) {
+                loadQuestion(newIdx);
+            } else if (newIdx >= questionsData.length) {
+                confirmSubmission();
+            }
+        }
+
+        function updateAnsweredCount() {
+            const count = userAnswers.filter(a => a !== null).length;
+            document.getElementById('answeredCount').innerText = count;
+        }
+
+        function confirmSubmission() {
+            const answered = userAnswers.filter(a => a !== null).length;
+            const remaining = questionsData.length - answered;
+
+            let msg = `Apakah Anda yakin ingin menyelesaikan LCC babak ini?`;
+            if (remaining > 0) {
+                msg = `Masih ada ${remaining} soal yang belum dijawab. Yakin ingin mengirim jawaban?`;
+            }
+
+            if (confirm(msg)) {
+                submitQuiz();
+            }
+        }
+
+        function sendDataToSheets(payload) {
+            return fetch(payload.scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+
+            let scoreCount = 0;
+            questionsData.forEach((q, idx) => {
+                if (userAnswers[idx] === q.answer) {
+                    scoreCount++;
+                }
+            });
+
+            const percentage = Math.round((scoreCount / questionsData.length) * 100);
+
+            localStorage.setItem(`completed_quiz_${studentData.kelas}_${studentData.absen}`, new Date().toISOString());
+
+            const payload = {
+                nama: studentData.nama,
+                kelas: studentData.kelas,
+                absen: studentData.absen,
+                skor: `${scoreCount}/${questionsData.length}`,
+                persentase: percentage,
+                scriptUrl: studentData.scriptUrl
+            };
+
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('headerTimer').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+
+            document.getElementById('resKelasAbsen').innerText = studentData.kelas;
+
+            if (navigator.onLine) {
+                attemptSubmission(payload);
+            } else {
+                savePendingSubmission(payload);
+                updateStatusUI(false, "Koneksi terputus. Jawaban tersimpan di memori lokal peranti.");
+            }
+
+            localStorage.removeItem('active_quiz_session');
+        }
+
+        function attemptSubmission(payload) {
+            const statusBox = document.getElementById('submissionStatus');
+            statusBox.className = "mt-6 p-3.5 bg-amber-50 rounded-xl text-xs font-semibold text-amber-800 flex items-center justify-center space-x-2 border border-amber-200";
+            statusBox.innerHTML = `<i class="fas fa-spinner fa-spin text-sm"></i><span>Mengirim jawaban ke server...</span>`;
+
+            sendDataToSheets(payload)
+                .then(() => {
+                    localStorage.removeItem('pending_quiz_submission');
+                    updateStatusUI(true, "Data Jawaban Berhasil Terkirim ke Rekap LCC");
+                })
+                .catch(err => {
+                    savePendingSubmission(payload);
+                    updateStatusUI(false, "Gagal terkirim otomatis. Jaringan internet terganggu.");
+                });
+        }
+
+        function savePendingSubmission(payload) {
+            localStorage.setItem('pending_quiz_submission', JSON.stringify(payload));
+        }
+
+        function updateStatusUI(isSuccess, message) {
+            const statusBox = document.getElementById('submissionStatus');
+            if (isSuccess) {
+                statusBox.className = "mt-6 p-3.5 bg-emerald-50 rounded-xl text-xs font-bold text-emerald-800 flex items-center justify-center space-x-2 border border-emerald-200";
+                statusBox.innerHTML = `<i class="fas fa-cloud-upload-alt text-base"></i> <span>Status: ${message}</span>`;
+            } else {
+                statusBox.className = "mt-6 p-4 bg-rose-50 rounded-xl text-xs text-rose-700 space-y-3 border border-rose-200 text-center";
+                statusBox.innerHTML = `
+                    <div class="flex items-center justify-center space-x-2 font-semibold">
+                        <i class="fas fa-wifi text-base text-rose-600"></i>
+                        <span>Status: ${message}</span>
+                    </div>
+                    <button onclick="retryPendingSubmission(this)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition">
+                        <i class="fas fa-sync-alt mr-1"></i> Coba Kirim Ulang Sekarang
+                    </button>
+                `;
+            }
+        }
+
+        function retryPendingSubmission(buttonEl) {
+            if (buttonEl) {
+                buttonEl.disabled = true;
+                buttonEl.classList.add('opacity-50', 'cursor-not-allowed');
+                buttonEl.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...`;
+            }
+
+            const pendingData = localStorage.getItem('pending_quiz_submission');
+            if (pendingData) {
+                const payload = JSON.parse(pendingData);
+                attemptSubmission(payload);
+            } else {
+                alert("Data jawaban kelompok Anda telah berhasil terkirim.");
+            }
+        }
+
+        // --- MANAJEMEN AKSES JURI ---
+
+        function openLoginModal() {
+            if (localStorage.getItem('guru_logged_in') === 'true') {
+                showGuruDashboard();
+            } else {
+                document.getElementById('guruUsername').value = '';
+                document.getElementById('guruPassword').value = '';
+                document.getElementById('loginErrorMsg').classList.add('hidden');
+                document.getElementById('loginGuruModal').classList.remove('hidden');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginGuruModal').classList.add('hidden');
+        }
+
+        function processGuruLogin() {
+            const u = document.getElementById('guruUsername').value.trim();
+            const p = document.getElementById('guruPassword').value.trim();
+
+            if (u === GURU_USER && p === GURU_PASS) {
+                localStorage.setItem('guru_logged_in', 'true');
+                closeLoginModal();
+                showGuruDashboard();
+            } else {
+                document.getElementById('loginErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function logoutGuru() {
+            if (confirm("Apakah Anda yakin ingin keluar dari Panel Juri?")) {
+                localStorage.removeItem('guru_logged_in');
+                document.getElementById('guruDashboardSection').classList.add('hidden');
+                document.getElementById('identitasSection').classList.remove('hidden');
+                document.getElementById('btnGuruNav').innerHTML = `<i class="fas fa-user-shield"></i><span>Akses Juri</span>`;
+            }
+        }
+
+        function showGuruDashboard() {
+            document.getElementById('identitasSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('guruDashboardSection').classList.remove('hidden');
+            document.getElementById('btnGuruNav').innerHTML = `<i class="fas fa-user-check text-slate-950"></i><span>Panel Juri Aktif</span>`;
+
+            populateFilterKelasOptions();
+            fetchGuruData();
+        }
+
+        function populateFilterKelasOptions() {
+            const selectFilter = document.getElementById('filterKelasGuru');
+            selectFilter.innerHTML = '<option value="ALL">Semua Kelompok</option>';
+            
+            const kelasList = [
+                "Kelompok X-1", "Kelompok X-2", "Kelompok X-3", "Kelompok X-4", "Kelompok X-5", "Kelompok X-6", "Kelompok X-7", "Kelompok X-8", "Kelompok X-9", "Kelompok X-10", "Kelompok X-11", "Kelompok X-12",
+                "Kelompok XI-A1", "Kelompok XI-A2", "Kelompok XI-A3", "Kelompok XI-A4", "Kelompok XI-B1", "Kelompok XI-B2", "Kelompok XI-B3", "Kelompok XI-B4", "Kelompok XI-C1", "Kelompok XI-C2", "Kelompok XI-C3", "Kelompok XI-C4",
+                "Kelompok XII-A1", "Kelompok XII-A2", "Kelompok XII-A3", "Kelompok XII-A4", "Kelompok XII-B1", "Kelompok XII-B2", "Kelompok XII-B3", "Kelompok XII-B4", "Kelompok XII-C1", "Kelompok XII-C2", "Kelompok XII-C3", "Kelompok XII-D"
+            ];
+
+            kelasList.forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.innerText = k;
+                selectFilter.appendChild(opt);
+            });
+        }
+
+        async function fetchGuruData() {
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+            const loader = document.getElementById('guruTableLoader');
+            const emptyState = document.getElementById('guruTableEmpty');
+            const tbody = document.getElementById('guruTableBody');
+            const refreshIcon = document.getElementById('refreshIcon');
+
+            tbody.innerHTML = '';
+            loader.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            refreshIcon.classList.add('fa-spin');
+
+            try {
+                const response = await fetch(`${scriptUrl}?action=getScores`);
+                const result = await response.json();
+
+                if (result && result.data && Array.isArray(result.data)) {
+                    guruAllData = result.data;
+                } else if (Array.isArray(result)) {
+                    guruAllData = result;
+                } else {
+                    guruAllData = [];
+                }
+            } catch (error) {
+                console.log("Fetch error:", error);
+                const storedLocal = localStorage.getItem('guru_cached_scores');
+                if (storedLocal) {
+                    guruAllData = JSON.parse(storedLocal);
+                } else {
+                    guruAllData = [];
+                }
+            } finally {
+                loader.classList.add('hidden');
+                refreshIcon.classList.remove('fa-spin');
+                
+                localStorage.setItem('guru_cached_scores', JSON.stringify(guruAllData));
+                filterAndRenderGuruTable();
+            }
+        }
+
+        function filterAndRenderGuruTable() {
+            const tbody = document.getElementById('guruTableBody');
+            const emptyState = document.getElementById('guruTableEmpty');
+            const keyword = document.getElementById('searchGuru').value.toLowerCase().trim();
+            const kelasFilter = document.getElementById('filterKelasGuru').value;
+
+            tbody.innerHTML = '';
+
+            let filtered = guruAllData.filter(item => {
+                const nameMatch = (item.nama || item.namaSiswa || '').toLowerCase().includes(keyword) || 
+                                  (item.kelas || item.kelasSiswa || '').toLowerCase().includes(keyword);
+                const classMatch = (kelasFilter === 'ALL') || ((item.kelas || item.kelasSiswa) === kelasFilter);
+                return nameMatch && classMatch;
+            });
+
+            document.getElementById('totalSiswaBadge').innerText = `${filtered.length} Kelompok`;
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            filtered.forEach((siswa, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+                const kelas = siswa.kelas || siswa.kelasSiswa || siswa.nama || '-';
+                const skor = siswa.skor || '-';
+                const persentase = siswa.persentase !== undefined ? siswa.persentase : (siswa.nilai || 0);
+
+                let persentaseBadge = 'bg-rose-100 text-rose-700 border-rose-200';
+                if (persentase >= 75) {
+                    persentaseBadge = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                } else if (persentase >= 60) {
+                    persentaseBadge = 'bg-amber-100 text-amber-800 border-amber-300';
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3.5"><span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-900 font-bold text-xs border border-emerald-200">${kelas}</span></td>
+                    <td class="p-3.5 text-center font-medium text-slate-600">${skor}</td>
+                    <td class="p-3.5 text-center">
+                        <span class="px-3 py-1 rounded-full text-xs font-extrabold border ${persentaseBadge}">${persentase}</span>
+                    </td>
+                    <td class="p-3.5 text-center space-x-1">
+                        <button onclick="openEditModal(${index})" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg font-bold text-[11px] transition inline-flex items-center space-x-1">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </button>
+                        <button onclick="deleteGuruRecord(${index})" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg font-bold text-[11px] transition inline-flex items-center space-x-1">
+                            <i class="fas fa-trash-alt"></i>
+                            <span>Hapus</span>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openEditModal(index) {
+            const siswa = guruAllData[index];
+            if (!siswa) return;
+
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editKelas').value = siswa.kelas || siswa.kelasSiswa || siswa.nama || '';
+
+            let currentSkorVal = 0;
+            if (siswa.skor && typeof siswa.skor === 'string' && siswa.skor.includes('/')) {
+                currentSkorVal = parseInt(siswa.skor.split('/')[0]) || 0;
+            } else {
+                currentSkorVal = parseInt(siswa.skor) || 0;
+            }
+
+            document.getElementById('editSkor').value = currentSkorVal;
+            calculateEditPercentage();
+
+            document.getElementById('editNilaiModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editNilaiModal').classList.add('hidden');
+        }
+
+        function calculateEditPercentage() {
+            const skorInput = parseInt(document.getElementById('editSkor').value) || 0;
+            const persentase = Math.round((skorInput / 20) * 100);
+            document.getElementById('editPersentase').value = persentase;
+        }
+
+        async function saveEditedScore() {
+            const index = document.getElementById('editIndex').value;
+            const newSkorVal = parseInt(document.getElementById('editSkor').value) || 0;
+            const newPersentase = parseInt(document.getElementById('editPersentase').value) || 0;
+
+            const targetSiswa = guruAllData[index];
+            if (!targetSiswa) return;
+
+            targetSiswa.skor = `${newSkorVal}/20`;
+            targetSiswa.persentase = newPersentase;
+
+            localStorage.setItem('guru_cached_scores', JSON.stringify(guruAllData));
+
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+            try {
+                fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'editScore',
+                        nama: targetSiswa.kelas || targetSiswa.kelasSiswa || targetSiswa.nama,
+                        kelas: targetSiswa.kelas || targetSiswa.kelasSiswa,
+                        absen: targetSiswa.absen || targetSiswa.noAbsen || "1",
+                        skor: `${newSkorVal}/20`,
+                        persentase: newPersentase
+                    })
+                });
+            } catch (e) {
+                console.log("Sync edit error:", e);
+            }
+
+            closeEditModal();
+            filterAndRenderGuruTable();
+            alert("Nilai kelompok berhasil diperbarui!");
+        }
+
+        async function deleteGuruRecord(index) {
+            const targetSiswa = guruAllData[index];
+            if (!targetSiswa) return;
+
+            const kelas = targetSiswa.kelas || targetSiswa.kelasSiswa || targetSiswa.nama;
+
+            if (confirm(`Apakah Anda yakin ingin menghapus data untuk ${kelas}?`)) {
+                guruAllData.splice(index, 1);
+                localStorage.setItem('guru_cached_scores', JSON.stringify(guruAllData));
+
+                localStorage.removeItem(`completed_quiz_${kelas}_1`);
+
+                const scriptUrl = document.getElementById('scriptUrl').value.trim();
+                try {
+                    fetch(scriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'deleteScore',
+                            kelas: kelas,
+                            absen: "1"
+                        })
+                    });
+                } catch (e) {
+                    console.log("Sync delete error:", e);
+                }
+
+                filterAndRenderGuruTable();
+                alert("Data berhasil dihapus!");
+            }
+        }
+
+        window.addEventListener('online', () => {
+            const pendingData = localStorage.getItem('pending_quiz_submission');
+            if (pendingData) {
+                const payload = JSON.parse(pendingData);
+                attemptSubmission(payload);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            restoreSessionIfExist();
+
+            if (localStorage.getItem('guru_logged_in') === 'true') {
+                document.getElementById('btnGuruNav').innerHTML = `<i class="fas fa-user-check text-slate-950"></i><span>Panel Juri Aktif</span>`;
+            }
+        });
+    </script>
+</body>
+</html>
